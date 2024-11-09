@@ -8,6 +8,7 @@
 
 #include "tick.h"
 #include "render.h"
+#include "game.h"
 
 pthread_mutex_t input_mutex;
 
@@ -20,7 +21,7 @@ void* input_thread_func(void* arg) {
 	struct termios oldt, newt;
 	tcgetattr(STDIN_FILENO, &oldt);
 	newt = oldt;
-	newt.c_lflag &= ~(ICANON | ECHO);
+	newt.c_lflag &= ~(ICANON | ECHO | ISIG); //  | ISIG -> interdire les signaux (exemple : CTRL + C)
 	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 	fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
 
@@ -49,7 +50,7 @@ void* input_thread_func(void* arg) {
 	return NULL;
 }
 
-void tick_start() {
+int tick_start() {
 	clock_t   start;
 	pthread_t input_thread;
 	pthread_mutex_init(&input_mutex, NULL);
@@ -65,6 +66,7 @@ void tick_start() {
 
 	// init
 	init_render();
+	init_game();
 	//end
 
 
@@ -89,21 +91,19 @@ void tick_start() {
 
 		// traitement touches
 		if (input_count > 0) {
-			//printf("[%d] ", input_count);
-
 			for (int i=0; i < input_count; i++) {
-				//printf("%c", input_lst[i]);
-				if (input_lst[i] == 'q') running = 0;
+				if (input_lst[i] == 'q') {
+					running = 0;
+					printf("\033[H\033[J"); 
+				} else handle_key_game(input_lst[i]);
 			}
-
-			//printf("\n");
 		}
 		// end
 
 
 
 		// game tick
-
+		tick_game();
 		// end
 
 
@@ -116,4 +116,6 @@ void tick_start() {
 	}
 
 	pthread_mutex_destroy(&input_mutex);
+
+	return 0;
 }

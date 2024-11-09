@@ -16,8 +16,6 @@ int main(void) {
 	maze_map_t maze_map = get_maze_map(7);
 	afficher_lab( maze_map.map, maze_map.height, maze_map.width);*/
 
-	tick_start();
-
 	//menu();
 
 	//init_render();
@@ -26,5 +24,6 @@ int main(void) {
 
 	start(maze_map.height, maze_map.width, maze_map.map);*/
 
-	return 0;
+	return tick_start();
+	//return 0;
 }

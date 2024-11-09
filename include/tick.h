@@ -3,6 +3,6 @@
 
 #define MAX_FPS 60
 
-void tick_start();
+int tick_start();
 
 #endif
