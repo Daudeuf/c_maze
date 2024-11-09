@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 #include "generation.h"
 
 vector_t* generate_shuffled_vectors(int width, int height) {

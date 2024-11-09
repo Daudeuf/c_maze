@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "module.h"
 #include "module_sec.h"
 #include "generation.h"
@@ -6,6 +7,7 @@
 #include "loader.h"
 #include "player.h"
 #include "tick.h"
+#include "render.h"
 
 int main(void) {
 	/*printf("free id : %d\n", get_free_id());
@@ -14,9 +16,11 @@ int main(void) {
 	maze_map_t maze_map = get_maze_map(7);
 	afficher_lab( maze_map.map, maze_map.height, maze_map.width);*/
 
-	//tick_start();
+	tick_start();
 
-	menu();
+	//menu();
+
+	//init_render();
 
 	/*maze_map_t maze_map = get_maze_map(7);
 

@@ -54,9 +54,9 @@ int menu(void) {
 			case 3:
 				break;
 			case 4:
-				grid = generate_grid(terminal_height - 7, terminal_width);
-				afficher_lab( grid , terminal_height - 7, terminal_width);
-				save_maze(7, terminal_height - 7, terminal_width, "maze de test fullscreen", grid);
+				grid = generate_grid(terminal_height - 7, terminal_width/2);
+				afficher_lab( grid , terminal_height - 7, terminal_width/2);
+				save_maze(7, terminal_height - 7, terminal_width/2, "maze de test fullscreen", grid);
 				free_grid(grid, terminal_height - 7);
 				grid = NULL;
 				break;

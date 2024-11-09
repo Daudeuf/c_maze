@@ -3,6 +3,8 @@
 #include <termios.h>
 #include <stdlib.h>
 
+#include "affichage.h"
+
 void deplacer_curseur(int x, int y) {
 	printf("\033[%d;%dH", y + 1, x + 1);
 }

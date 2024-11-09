@@ -1,4 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <termios.h>
+#include <fcntl.h>
+#include <time.h>
+
 #include "tick.h"
+#include "render.h"
 
 pthread_mutex_t input_mutex;
 
@@ -53,7 +62,11 @@ void tick_start() {
 		return 1;
 	}
 
-	int cpt_frame = 0;
+
+	// init
+	init_render();
+	//end
+
 
 	while (running) {
 		start = clock();
@@ -76,27 +89,27 @@ void tick_start() {
 
 		// traitement touches
 		if (input_count > 0) {
-			printf("[%d] ", input_count);
+			//printf("[%d] ", input_count);
 
 			for (int i=0; i < input_count; i++) {
-				printf("%c", input_lst[i]);
+				//printf("%c", input_lst[i]);
 				if (input_lst[i] == 'q') running = 0;
 			}
 
-			printf("\n");
+			//printf("\n");
 		}
 		// end
 
 
 
 		// game tick
-		//printf("frame : %d\n", cpt_frame++);
+
 		// end
 
 
 
 		// tick graphique
-
+		tick_render();
 		// end
 
 		usleep((1000000 - (clock() - start) / CLOCKS_PER_SEC * 1000000) / MAX_FPS); // assure que le jeu tourne à 60 tps (tick par seconde)

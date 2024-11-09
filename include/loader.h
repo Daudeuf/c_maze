@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <dirent.h>
+#ifndef MAZE_LOADER_H
+#define MAZE_LOADER_H
 
 typedef struct {
 	int   id;
@@ -23,3 +20,5 @@ maze_map_t   get_maze_map(int id);
 int          get_free_id();
 void         save_maze(int id, int height, int width, char* name, int** maze_map);
 void         remove_maze(int id);
+
+#endif
