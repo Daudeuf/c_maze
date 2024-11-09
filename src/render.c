@@ -72,7 +72,7 @@ void clear_render() {
 
 	printf("\033[%d;%dH", terminal_height-1, terminal_width/2);
 	printf("Hello !");
-	printf("\033[%d;%dH", terminal_height, terminal_width);
+	printf("\033[%d;%dH", terminal_height, terminal_width+10);
 	fflush(stdout);
 }
 
