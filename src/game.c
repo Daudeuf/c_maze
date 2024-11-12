@@ -9,12 +9,16 @@
 const char* MENU_ITEMS[] = { "Creer", "Charger", "Jouer", "Classement", "Quitter" };
 
 // State
-int mode; // 0: initial_menu, 1:create, 2:load, 3:classic, 4:advanced
+int mode; // 0: initial_menu, 1:create, 2:load, 3:classic, 4:advanced, 5:classement
 
 // Menu
 int menu_index; // 0:créer, 1:charger, 2:jouer, 3:classement, 4:quitter
 int menu_index_count;
 
+char* input_name;
+char* input_width;
+char* input_height;
+int   input_difficulty;
 
 
 void init_game() {
@@ -32,11 +36,34 @@ void handle_key_game(char key) {
 			if (menu_index < (menu_index_count - 1)) menu_index++;
 		}
 		if (key == '\n' || key == ' ') {
-			if (menu_index == 0); // créer
+			if (menu_index == 0) { // créer
+				mode = 1;
+				menu_index = 0; // width, height, difficulty, name
+
+				input_name   = (char*) malloc(sizeof(char));
+				input_width  = (char*) malloc(sizeof(char));
+				input_height = (char*) malloc(sizeof(char));
+
+				input_name[0]   = '\0';
+				input_width[0]  = '\0';
+				input_height[0] = '\0';
+
+				input_difficulty = 0;
+			}
 			if (menu_index == 1); // charger
 			if (menu_index == 2); // jouer
 			if (menu_index == 3); // classement
 			if (menu_index == 4) tick_quit(); // quitter
+		}
+	}
+
+	if (mode == 1) {
+		if (key == 0x7F) { // del: 0x7F, suppr:0x1B
+			
+		} else if(key == '\n') {
+			
+		} else {
+
 		}
 	}
 }
