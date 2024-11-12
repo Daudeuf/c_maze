@@ -24,7 +24,7 @@
 
 Phases :
 - Initial :
-SCREEN = "LABYRINTHE"
+SCREEN = "LABYRINTHE" ou lab chargé
 Menu = menu classique (choix) [0]
 
 - Création
@@ -42,6 +42,10 @@ Menu = Liste des touches & info partie [3]
 - Jouer (pas classique)
 SCREEN = labyrinthe en cour (vue map 2d amélioré)
 Menu = Liste des touches & info partie & inventaire [4]
+
+- Classement
+SCREEN = labyrinthe chargé (vue map lab sélectionné)
+Menu = Classement [5]
 
 */
 
