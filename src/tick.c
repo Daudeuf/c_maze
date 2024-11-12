@@ -65,8 +65,8 @@ int tick_start() {
 
 
 	// init
-	init_render();
 	init_game();
+	init_render();
 	//end
 
 
@@ -92,30 +92,33 @@ int tick_start() {
 		// traitement touches
 		if (input_count > 0) {
 			for (int i=0; i < input_count; i++) {
-				if (input_lst[i] == 'q') {
-					running = 0;
-					printf("\033[H\033[J"); 
-				} else handle_key_game(input_lst[i]);
+				if (input_lst[i] == 'c') tick_quit(); else handle_key_game(input_lst[i]);
 			}
 		}
 		// end
 
+		if (running) {
+
+			// game tick
+			tick_game();
+			// end
 
 
-		// game tick
-		tick_game();
-		// end
 
+			// tick graphique
+			tick_render();
+			// end
 
-
-		// tick graphique
-		tick_render();
-		// end
-
-		usleep((1000000 - (clock() - start) / CLOCKS_PER_SEC * 1000000) / MAX_FPS); // assure que le jeu tourne à 60 tps (tick par seconde)
+			usleep((1000000 - (clock() - start) / CLOCKS_PER_SEC * 1000000) / MAX_FPS); // assure que le jeu tourne à 60 tps (tick par seconde)
+		}
 	}
 
 	pthread_mutex_destroy(&input_mutex);
 
 	return 0;
+}
+
+void tick_quit() {
+	running = 0;
+	printf("\033[H\033[J");
 }
