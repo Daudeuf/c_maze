@@ -29,6 +29,11 @@ maze_data_t* mazes;
 int map_loaded;
 maze_map_t maze_map;
 
+// player
+int player_x, player_y;
+int player_score;
+int player_key_finded;
+
 
 void init_game() {
 	map_loaded = 0;
@@ -71,7 +76,14 @@ void handle_key_game(char key) {
 					menu_index_count = get_maze_count();
 					mazes = get_maze_list();
 				} else if (menu_index == 2) { // jouer
+					if (map_loaded) {
+						mode = 3;
 
+						player_x = 0;
+						player_y = 0;
+						player_score = 0;
+						player_key_finded = 0;
+					}
 				} else if (menu_index == 3) { // classement
 
 				} else if (menu_index == 4) tick_quit(); // quitter
@@ -125,7 +137,7 @@ void handle_key_game(char key) {
 				menu_index_count = 5;
 			}
 		} else {
-			if ( menu_index == 3 && ((key <= 'Z' && key >= 'A') || (key <= 'z' && key >= 'a') || key == ' ' || key == '_' || key == '-') ) {
+			if ( menu_index == 3 && ((key <= 'Z' && key >= 'A') || (key <= 'z' && key >= 'a') || key == ' ' || key == '_' || key == '-') && strlen(input_name) <= 32 ) {
 				asprintf(&input_name, "%s%c", input_name, key);
 			}
 
@@ -188,7 +200,20 @@ char* menu_game(int h, int w) {
 	}
 
 	if (mode == 2) {
-		
+		int a_pos = copy_int_to_string_pos(menu_index + 1, menu, w*(gap) + 4);
+		a_pos = copy_string_pos("/", menu, a_pos);
+		a_pos = copy_int_to_string_pos(menu_index_count, menu, a_pos) + 4;
+
+		int show = max_element_line > menu_index_count ? menu_index_count : max_element_line;
+		int f_show = (menu_index > menu_index_count - max_element_line) ? menu_index_count - max_element_line : menu_index;
+
+		for (int i=0; i < show; i++) {
+			if (f_show + i == menu_index) copy_string_pos(">", menu, a_pos + i*w - 2);
+
+			char* str_b;
+			asprintf(&str_b, "[id:%d] %s", mazes[f_show + i].id, mazes[f_show + i].name);
+			copy_string_pos(str_b, menu, a_pos + i*w);
+		}
 	}
 
 	return menu;

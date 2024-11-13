@@ -39,3 +39,22 @@ int copy_string_pos(const char* src, char* dest, int start_pos) {
 
 	return j + start_pos;
 }
+
+int copy_int_to_string_pos(const int src, char* dest, int start_pos) {
+	if (strlen(dest) <= start_pos) return start_pos;
+
+	char* src_str;
+	int j;
+
+	asprintf(&src_str, "%d", src);
+
+	for (j=0; j < strlen(src_str); j++) {
+		if (dest[start_pos + j] == '\0') break;
+
+		dest[start_pos + j] = src_str[j];
+	}
+
+	free(src_str);
+
+	return j + start_pos;
+}
