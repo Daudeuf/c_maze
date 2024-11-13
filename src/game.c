@@ -23,11 +23,16 @@ char* input_width;
 char* input_height;
 int   input_difficulty;
 
+maze_data_t* mazes;
+
 // Current game
-int** grid;
+int map_loaded;
+maze_map_t maze_map;
 
 
 void init_game() {
+	map_loaded = 0;
+
 	mode = 0;
 	menu_index = 0;
 	menu_index_count = 5;
@@ -44,28 +49,44 @@ void handle_key_game(char key) {
 			if (menu_index < (menu_index_count - 1)) menu_index++;
 		}
 		if (key == '\n' || key == ' ') {
-			if (menu_index == 0) { // créer
-				mode = 1;
+			if (mode == 0) {
+				if (menu_index == 0) { // créer
+					mode = 1;
 
-				// menu_index -> 0:width, 1:height, 2:difficulty, 3:name
+					// menu_index -> 0:width, 1:height, 2:difficulty, 3:name
 
-				input_name   = (char*) malloc(sizeof(char));
-				input_width  = (char*) malloc(sizeof(char));
-				input_height = (char*) malloc(sizeof(char));
+					input_name   = (char*) malloc(sizeof(char));
+					input_width  = (char*) malloc(sizeof(char));
+					input_height = (char*) malloc(sizeof(char));
 
-				input_name[0]   = '\0';
-				input_width[0]  = '\0';
-				input_height[0] = '\0';
+					input_name[0]   = '\0';
+					input_width[0]  = '\0';
+					input_height[0] = '\0';
 
-				input_difficulty = -1; // 0:facile, 1:difficile
+					input_difficulty = -1; // 0:facile, 1:difficile
 
-			} else if (menu_index == 1) { // charger
+				} else if (menu_index == 1) { // charger
+					mode = 2;
+					menu_index = 0;
+					menu_index_count = get_maze_count();
+					mazes = get_maze_list();
+				} else if (menu_index == 2) { // jouer
 
-			} else if (menu_index == 2) { // jouer
+				} else if (menu_index == 3) { // classement
 
-			} else if (menu_index == 3) { // classement
+				} else if (menu_index == 4) tick_quit(); // quitter
+			} else if (mode == 2) {
+				if (map_loaded) free_grid(maze_map.map, maze_map.height);
 
-			} else if (menu_index == 4) tick_quit(); // quitter
+				maze_map = get_maze_map(mazes[menu_index].id);
+				map_loaded = 1;
+
+				free(mazes);
+
+				mode = 0;
+				menu_index = 0;
+				menu_index_count = 5;
+			}
 		}
 	} else if (mode == 1) {
 		if (key == 0x7F) { // del: 0x7F, suppr:0x1B
@@ -84,10 +105,16 @@ void handle_key_game(char key) {
 				if (width_final%2  == 0) width_final--;
 				if (height_final%2 == 0) height_final--;
 
-				grid = generate_grid(height_final, width_final);
-				save_maze(get_free_id(), height_final, width_final, input_name, grid);
-				/*free_grid(grid, height_final);
-				grid = NULL;*/
+				int** grid = generate_grid(height_final, width_final);
+				int id = get_free_id();
+				save_maze(id, height_final, width_final, input_name, grid);
+				free_grid(grid, height_final);
+				grid = NULL;
+
+				if (map_loaded) free_grid(maze_map.map, maze_map.height);
+
+				maze_map = get_maze_map(id);
+				map_loaded = 1;
 
 				free(input_name);
 				free(input_width);
@@ -158,6 +185,10 @@ char* menu_game(int h, int w) {
 		a_pos = copy_string_pos("Nom :", menu, a_pos) + 1;
 		a_pos = copy_string_pos(input_name, menu, a_pos);
 		if (menu_index == 3) copy_string_pos("_", menu, a_pos);
+	}
+
+	if (mode == 2) {
+		
 	}
 
 	return menu;
