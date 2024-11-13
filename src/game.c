@@ -5,6 +5,8 @@
 #include "game.h"
 #include "tick.h"
 #include "function.h"
+#include "generation.h"
+#include "loader.h"
 
 // Elements of main menu
 const char* MENU_ITEMS[] = { "Creer", "Charger", "Jouer", "Classement", "Quitter" };
@@ -20,6 +22,9 @@ char* input_name;
 char* input_width;
 char* input_height;
 int   input_difficulty;
+
+// Current game
+int** grid;
 
 
 void init_game() {
@@ -72,8 +77,22 @@ void handle_key_game(char key) {
 			if (menu_index == 1 && strlen(input_height) > 0) menu_index++;
 			if (menu_index == 2 && input_difficulty != -1) menu_index++;
 			if (menu_index == 3 && strlen(input_name) > 0) {
-				// CREER UNE PARTIE ICI
-				//printf("width: %s, height:%s, difficulty:%s, name:%s\n", input_width, input_height, input_difficulty ? "difficile" : "facile", input_name);
+				// CREATION OF THE GAME
+				int width_final = atoi(input_width);
+				int height_final = atoi(input_height);
+
+				if (width_final%2  == 0) width_final--;
+				if (height_final%2 == 0) height_final--;
+
+				grid = generate_grid(height_final, width_final);
+				save_maze(get_free_id(), height_final, width_final, input_name, grid);
+				/*free_grid(grid, height_final);
+				grid = NULL;*/
+
+				free(input_name);
+				free(input_width);
+				free(input_height);
+
 				mode = 0;
 				menu_index = 0;
 				menu_index_count = 5;

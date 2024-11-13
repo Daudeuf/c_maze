@@ -114,6 +114,8 @@ void intermediate_interface_render() {
 		} else has_change = 0;
 	}
 
+	free(menu);
+
 	if (strlen(str) != 0) {
 		printf("%s\033[H", str);
 		fflush(stdout);

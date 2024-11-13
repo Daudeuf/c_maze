@@ -53,9 +53,9 @@ void change_side_value(int** grid, int x, int y, int val) {
 	if (grid[y][x - 1] == val) { grid[y][x - 1] = grid[y][x]; change_side_value(grid, x - 1, y, val); }
 }
 
-void delta(clock_t start, int indicateur) {
+/*void delta(clock_t start, int indicateur) {
 	printf("[%d] Temps d'exécution : %f secondes\n", indicateur, ((double)(clock() - start)) / CLOCKS_PER_SEC);
-}
+}*/
 
 int** generate_grid(int height, int width) {
 	/*
@@ -78,11 +78,11 @@ int** generate_grid(int height, int width) {
 		}
 	}
 
-	delta(start, 1);
+	//delta(start, 1);
 
 	vector_t * lst = generate_shuffled_vectors(width, height);
 
-	delta(start, 2);
+	//delta(start, 2);
 
 	int cpt_it = 0;
 
@@ -105,9 +105,9 @@ int** generate_grid(int height, int width) {
 		} else grid[y][x] = -1;
 	}
 
-	printf("changement : %d murs : %d\n", cpt_it, (height - 2) * (width - 2) / 2);
+	//printf("changement : %d murs : %d\n", cpt_it, (height - 2) * (width - 2) / 2);
 
-	delta(start, 3);
+	//delta(start, 3);
 
 	free(lst); // libération de la mémoire prise par la liste de vecteur
 
@@ -119,7 +119,7 @@ int** generate_grid(int height, int width) {
 	grid[height - 2][width - 2] = 0;
 	change_side_value(grid, width - 2, height - 2, val);
 
-	delta(start, 4);
+	//delta(start, 4);
 
 	return grid;
 }

@@ -26,7 +26,7 @@ void free_grid(int** grid, int height) {
 	free(grid);
 }
 
-int copy_string_pos(char* src, char* dest, int start_pos) {
+int copy_string_pos(const char* src, char* dest, int start_pos) {
 	if (strlen(dest) <= start_pos) return start_pos;
 
 	int j;
