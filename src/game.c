@@ -56,7 +56,7 @@ void handle_key_game(char key) {
 			if (menu_index == 3); // classement
 			if (menu_index == 4) tick_quit(); // quitter
 		}
-	} else if (mode == 1) {
+	} else if (mode == 1) { // todo: en mode 1 faire attention au c qui ferme le prog
 		if (key == 0x7F) { // del: 0x7F, suppr:0x1B
 			if (menu_index == 0 && strlen(input_width) > 0) input_width[strlen(input_width) - 1] = '\0';
 			if (menu_index == 1 && strlen(input_height) > 0) input_height[strlen(input_height) - 1] = '\0';
@@ -116,7 +116,7 @@ char* menu_game(int h, int w) {
 	}
 
 	if (mode == 1) {
-		
+
 	}
 
 	return menu;
