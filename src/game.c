@@ -38,7 +38,8 @@ void handle_key_game(char key) {
 		if (key == '\n' || key == ' ') {
 			if (menu_index == 0) { // créer
 				mode = 1;
-				menu_index = 0; // width, height, difficulty, name
+
+				// menu_index -> 0:width, 1:height, 2:difficulty, 3:name
 
 				input_name   = (char*) malloc(sizeof(char));
 				input_width  = (char*) malloc(sizeof(char));
@@ -48,22 +49,37 @@ void handle_key_game(char key) {
 				input_width[0]  = '\0';
 				input_height[0] = '\0';
 
-				input_difficulty = 0;
-			}
+				input_difficulty = 0; // 0:facile, 1:difficile
+			} // TODO : mettre d uelse if partout ici
 			if (menu_index == 1); // charger
 			if (menu_index == 2); // jouer
 			if (menu_index == 3); // classement
 			if (menu_index == 4) tick_quit(); // quitter
 		}
-	}
-
-	if (mode == 1) {
+	} else if (mode == 1) {
 		if (key == 0x7F) { // del: 0x7F, suppr:0x1B
-			
+			if (menu_index == 0 && strlen(input_width) > 0) input_width[strlen(input_width) - 1] = '\0';
+			if (menu_index == 1 && strlen(input_height) > 0) input_height[strlen(input_height) - 1] = '\0';
+			if (menu_index == 3 && strlen(input_name) > 0) input_name[strlen(input_name) - 1] = '\0';
 		} else if(key == '\n') {
-			
+			if (menu_index == 0 && strlen(input_width) > 0) menu_index++;
+			if (menu_index == 1 && strlen(input_height) > 0) menu_index++;
+			if (menu_index == 2) menu_index++;
+			if (menu_index == 3 && strlen(input_name) > 0) {
+				// CREER UNE PARTIE ICI
+			}
 		} else {
+			if ( menu_index == 3 && ((key <= 'Z' && key >= 'A') || (key <= 'z' && key >= 'a') || key == ' ' || key == '_' || key == '-') ) {
+				asprintf(&input_name, "%s%c", input_name, key);
+			}
 
+			if (key <= '9' && key >= '0') {
+				if (menu_index == 0) asprintf(&input_width, "%s%c", input_width, key);
+				if (menu_index == 1) asprintf(&input_height, "%s%c", input_height, key);
+			}
+
+			if (menu_index == 2 && key == 'h') input_difficulty = 1;
+			if (menu_index == 2 && key == 'f') input_difficulty = 0;
 		}
 	}
 }
@@ -97,6 +113,10 @@ char* menu_game(int h, int w) {
 
 			if (menu_index == i) menu[a_pos - 2] = '>';
 		}
+	}
+
+	if (mode == 1) {
+		
 	}
 
 	return menu;
