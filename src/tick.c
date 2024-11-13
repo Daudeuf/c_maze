@@ -114,6 +114,7 @@ int tick_start() {
 	}
 
 	pthread_mutex_destroy(&input_mutex);
+	pthread_join(input_thread, NULL);
 
 	return 0;
 }
