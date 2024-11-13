@@ -92,7 +92,7 @@ int tick_start() {
 		// traitement touches
 		if (input_count > 0) {
 			for (int i=0; i < input_count; i++) {
-				if (input_lst[i] == 'c') tick_quit(); else handle_key_game(input_lst[i]);
+				/*if (input_lst[i] == 'c') tick_quit(); else */handle_key_game(input_lst[i]);
 			}
 		}
 		// end
