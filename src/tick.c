@@ -109,7 +109,10 @@ int tick_start() {
 			tick_render();
 			// end
 
-			usleep((1000000 - (clock() - start) / CLOCKS_PER_SEC * 1000000) / MAX_FPS); // assure que le jeu tourne à 60 tps (tick par seconde)
+
+			// assure que le jeu tourne à 60 tps (tick par seconde)
+			long temp = (1000000 - (clock() - start) / CLOCKS_PER_SEC * 1000000) / MAX_FPS;
+			usleep(temp > 1000 ? temp : 1000);
 		}
 	}
 

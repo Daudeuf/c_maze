@@ -82,7 +82,7 @@ maze_map_t get_maze_map(int id) {
 
 			if (len <= 1) break;
 
-			temp_width += len / 4;
+			temp_width += len / 3;
 
 			if (end_with(line, "E\n")) {
 				maze_map.height++;
@@ -150,12 +150,12 @@ void save_maze(int id, int height, int width, char* name, int** maze_map) {
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				if (char_count + 4 > 255) {
-					fprintf(file, "\n%03d ", maze_map[y][x]);
-					char_count = 4;
+				if (char_count + 3 > 254) { // 256 - 3 ('E' '\n' '\0')
+					fprintf(file, "\n%02d ", maze_map[y][x]);
+					char_count = 3;
 				} else {
-					fprintf(file, "%03d ", maze_map[y][x]);
-					char_count += 4;
+					fprintf(file, "%02d ", maze_map[y][x]);
+					char_count += 3;
 				}
 			}
 

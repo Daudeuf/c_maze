@@ -71,10 +71,15 @@ void handle_key_game(char key) {
 					input_difficulty = -1; // 0:facile, 1:difficile
 
 				} else if (menu_index == 1) { // charger
-					mode = 2;
-					menu_index = 0;
 					menu_index_count = get_maze_count();
-					mazes = get_maze_list();
+
+					if (menu_index_count > 0) {
+						mode = 2;
+						menu_index = 0;
+						mazes = get_maze_list();
+					} else {
+						menu_index_count = 5;
+					}
 				} else if (menu_index == 2) { // jouer
 					if (map_loaded) {
 						mode = 3;
@@ -205,7 +210,7 @@ char* menu_game(int h, int w) {
 		a_pos = copy_int_to_string_pos(menu_index_count, menu, a_pos) + 4;
 
 		int show = max_element_line > menu_index_count ? menu_index_count : max_element_line;
-		int f_show = (menu_index > menu_index_count - max_element_line) ? menu_index_count - max_element_line : menu_index;
+		int f_show = (menu_index > menu_index_count - show) ? menu_index_count - show : menu_index;
 
 		for (int i=0; i < show; i++) {
 			if (f_show + i == menu_index) copy_string_pos(">", menu, a_pos + i*w - 2);
