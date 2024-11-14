@@ -6,6 +6,8 @@
 
 #include "loader.h"
 
+/* local function */
+
 int end_with(char* str, char* end) {
 	if (!str || !end) return 0;
 
@@ -29,6 +31,8 @@ int is_int(const char* str) {
 	return *endptr == '\0';
 }
 
+/* end local function */
+
 int get_maze_count() {
 	struct dirent **namelist;
 	return scandir("./mazes", &namelist, filter, alphasort);
@@ -47,11 +51,18 @@ maze_data_t* get_maze_list() {
 
 		if (file != NULL) {
 			char line[256];
+			int x, y, s;
+			int inv_count, monster_count;
+			int ranking[10];
 
 			fgets(line, sizeof(line), file);
 			sscanf(line, "%d", &lst[i].id);
 			fgets(lst[i].name, sizeof(lst[i].name), file);
-			lst[i].name[strlen(lst[i].name)-1] = '\0';
+			lst[i].name[strlen(lst[i].name) - 1] = '\0';
+			fgets(line, sizeof(line), file);
+			sscanf(line, "%d %d %d %d %d", &x, &y, &s, &inv_count, &monster_count);
+			for (int i=0; i < (inv_count + monster_count + 1); i++) fgets(line, sizeof(line), file);
+			sscanf(line, "%d %d %d %d %d %d %d %d %d %d", &ranking[0], &ranking[1], &ranking[2], &ranking[3], &ranking[4], &ranking[5], &ranking[6], &ranking[7], &ranking[8], &ranking[9]);
 			fclose(file);
 		}
 	}
@@ -69,10 +80,36 @@ maze_map_t get_maze_map(int id) {
 	if (file != NULL) {
 		char line[256];
 
+		char** inv;
+		maze_monster_t* monsters;
+
 		fgets(line, sizeof(line), file);
-		sscanf(line, "%d", &maze_map.id);
-		fgets(line, sizeof(line), file);
-		fgets(line, sizeof(line), file);
+		sscanf(line, "%d %d", &maze_map.id, &maze_map.difficulty);
+		fgets(line, sizeof(line), file);// skip nom
+
+		fgets(line, sizeof(line), file);// ligne data int
+		sscanf(line, "%d %d %d %d %d", &maze_map.player_x, &maze_map.player_y, &maze_map.player_score, &maze_map.player_inventory_count, &maze_map.monster_count);
+
+		maze_map.player_inventory = (char**) malloc(maze_map.player_inventory_count * sizeof(char*));
+		maze_map.monsters = (maze_monster_t*) malloc(maze_map.monster_count * sizeof(maze_monster_t));
+
+		for (int i=0; i < maze_map.player_inventory_count; i++) {
+			maze_map.player_inventory[i] = (char*) malloc(17 * sizeof(char));
+			fgets(maze_map.player_inventory[i], sizeof(maze_map.player_inventory[i]), file);
+			maze_map.player_inventory[i][strlen(maze_map.player_inventory[i]) - 1] = '\0';
+		}
+
+		for (int i=0; i < maze_map.monster_count; i++) {
+			maze_monster_t monster = {};
+
+			fgets(line, sizeof(line), file);
+			sscanf(line, "%d %d %d %d %d", &monster.type, &monster.def_x, &monster.def_y, &monster.x, &monster.y);
+
+			maze_map.monsters[i] = monster;
+		}
+
+		fgets(line, sizeof(line), file);// skip classement
+		fgets(line, sizeof(line), file);// skip ligne vide avant grille
 
 		long maze_map_pos = ftell(file);
 		int temp_width = 0;
@@ -135,7 +172,7 @@ int get_free_id() {
 	return cpt;
 }
 
-void save_maze(int id, int height, int width, char* name, int** maze_map) {
+void save_maze(int id, int height, int width, char* name, int** maze_map, int difficulty, int monster_count, maze_monster_t* monsters, int player_x, int player_y, int player_score, int player_inventory_count, char** player_inventory, int* ranking) {
 	if (height%2==0) height--;
 	if (width%2==0) width--;
 
@@ -146,7 +183,19 @@ void save_maze(int id, int height, int width, char* name, int** maze_map) {
 	FILE* file = fopen(filename, "w");
 
 	if (file != NULL) {
-		fprintf(file, "%d\n%s\n\n", id, name);
+		fprintf(file, "%d %d\n%s\n%d %d %d %d %d\n"/* "\n%s\n%s\n%s\n\n" */, id, difficulty, name, player_x, player_y, player_score, player_inventory_count, monster_count);
+
+		for (int i=0; i < player_inventory_count; i++) {
+			fprintf(file, "%s\n", player_inventory[i]);
+		}
+
+		for (int i=0; i < monster_count; i++) {
+			fprintf(file, "%d %d %d %d %d\n", monsters[i].type, monsters[i].def_x, monsters[i].def_y, monsters[i].x, monsters[i].y);
+		}
+
+		for (int i=0; i < 10; i++) {
+			fprintf(file, "%d%s", ranking[i], i == 9 ? "\n\n" : " ");
+		}
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
@@ -167,6 +216,12 @@ void save_maze(int id, int height, int width, char* name, int** maze_map) {
 	}
 }
 
-void remove_maze(int id) {
-	printf("not yet implemented :)\n");
+void save_new_maze(int id, int height, int width, char* name, int** maze_map, int difficulty, int monster_count, maze_monster_t* monsters) {
+	char*  default_ranking = (int*)   calloc(10, sizeof(int));
+
+	save_maze(id, height, width, name, maze_map, difficulty, monster_count, monsters, width - 2, height - 1, 0, 0, NULL, default_ranking);
 }
+
+/*void remove_maze(int id) {
+	printf("not yet implemented :)\n");
+}*/

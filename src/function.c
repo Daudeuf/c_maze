@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "loader.h"
+
 void get_terminal_dimension(int* width, int* height) {
 	struct winsize w;
 
@@ -24,6 +26,23 @@ void free_grid(int** grid, int height) {
 	}
 
 	free(grid);
+}
+
+void free_maze_map(maze_map_t maze) {
+	int height = maze.height;
+	if (height%2==0) height--;
+
+	for (int i = 0; i < height; i++) {
+		free(maze.map[i]);
+	}
+
+	for (int i = 0; i < maze.player_inventory_count; i++) {
+		free(maze.player_inventory[i]);
+	}
+
+	free(maze.map);
+	free(maze.player_inventory);
+	free(maze.monsters);
 }
 
 int copy_string_pos(const char* src, char* dest, int start_pos) {

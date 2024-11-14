@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+
 #include "generation.h"
 #include "function.h"
 #include "affichage.h"
@@ -45,7 +46,7 @@ int menu(void) {
 			case 1:
 				grid = generate_grid(1024, 1024);
 				afficher_lab( grid , 1024, 1024);
-				save_maze(6, 1024, 1024, "maze de test", grid);
+				save_new_maze(6, 1024, 1024, "maze de test", grid, 0, 0, NULL);
 				free_grid(grid, 1024);
 				grid = NULL;
 				break;
@@ -56,7 +57,7 @@ int menu(void) {
 			case 4:
 				grid = generate_grid(terminal_height - 7, terminal_width/2);
 				afficher_lab( grid , terminal_height - 7, terminal_width/2);
-				save_maze(7, terminal_height - 7, terminal_width/2, "maze de test fullscreen", grid);
+				save_new_maze(7, terminal_height - 7, terminal_width/2, "maze de test fullscreen", grid, 0, 0, NULL);
 				free_grid(grid, terminal_height - 7);
 				grid = NULL;
 				break;

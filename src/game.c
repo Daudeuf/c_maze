@@ -93,7 +93,7 @@ void handle_key_game(char key) {
 
 				} else if (menu_index == 4) tick_quit(); // quitter
 			} else if (mode == 2) {
-				if (map_loaded) free_grid(maze_map.map, maze_map.height);
+				if (map_loaded) free_maze_map(maze_map);
 
 				maze_map = get_maze_map(mazes[menu_index].id);
 				map_loaded = 1;
@@ -124,11 +124,11 @@ void handle_key_game(char key) {
 
 				int** grid = generate_grid(height_final, width_final);
 				int id = get_free_id();
-				save_maze(id, height_final, width_final, input_name, grid);
+				save_new_maze(id, height_final, width_final, input_name, grid, input_difficulty, 0, NULL);
 				free_grid(grid, height_final);
 				grid = NULL;
 
-				if (map_loaded) free_grid(maze_map.map, maze_map.height);
+				if (map_loaded) free_maze_map(maze_map);
 
 				maze_map = get_maze_map(id);
 				map_loaded = 1;
