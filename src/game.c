@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "game.h"
 #include "tick.h"
@@ -28,6 +29,10 @@ maze_data_t* mazes;
 // Current game
 int map_loaded;
 maze_map_t maze_map;
+int tick_counter;
+
+// Ranking Menu
+maze_data_t maze_data;
 
 
 void init_game() {
@@ -41,7 +46,7 @@ void init_game() {
 void handle_key_game(char key) {
 	if (mode != 1 && key == 'c') tick_quit();
 
-	if (mode == 0 || mode == 2) {
+	if (mode == 0 || mode == 2 || mode == 5) {
 		if (key == 'z' || key == 'q') {
 			if (menu_index > 0) menu_index--;
 		}
@@ -78,9 +83,15 @@ void handle_key_game(char key) {
 				} else if (menu_index == 2) { // jouer
 					if (map_loaded) {
 						mode = 3;
+						tick_counter = 0;
 					}
 				} else if (menu_index == 3) { // classement
-
+					if (map_loaded) {
+						mode = 5;
+						menu_index = 0;
+						menu_index_count = 10;
+						maze_data = get_maze_map_data(maze_map.id);
+					}
 				} else if (menu_index == 4) tick_quit(); // quitter
 			} else if (mode == 2) {
 				if (map_loaded) free_maze_map(maze_map);
@@ -90,6 +101,10 @@ void handle_key_game(char key) {
 
 				free(mazes);
 
+				mode = 0;
+				menu_index = 0;
+				menu_index_count = 5;
+			} else if (mode == 5) {
 				mode = 0;
 				menu_index = 0;
 				menu_index_count = 5;
@@ -113,8 +128,11 @@ void handle_key_game(char key) {
 				if (height_final%2 == 0) height_final--;
 
 				int** grid = generate_grid(height_final, width_final);
+				if (input_difficulty == 1) break_walls(grid, height_final, width_final);
+				int monster_count = 0;
+				maze_monster_t* monsters = generate_items_and_monsters(grid, height_final, width_final, input_difficulty, &monster_count);
 				int id = get_free_id();
-				save_new_maze(id, height_final, width_final, input_name, grid, input_difficulty, 0, NULL);
+				save_new_maze(id, height_final, width_final, input_name, grid, input_difficulty, monster_count, monsters);
 				free_grid(grid, height_final);
 				grid = NULL;
 
@@ -145,41 +163,139 @@ void handle_key_game(char key) {
 			if (menu_index == 2 && key == 'f') input_difficulty = 0;
 		}
 	} else if (mode == 3) {
-		int changed = 0;
+		int mv_y = (key == 'z') ? -1 : (key == 's' ? 1 : 0);
+		int mv_x = (key == 'q') ? -1 : (key == 'd' ? 1 : 0);
 
-		if (key == 'z' && maze_map.player_y - 1 >= 0)
-			if (maze_map.map[maze_map.player_y-1][maze_map.player_x] != 1) {
-				maze_map.player_y--;
-				changed = 1;
+		if (mv_y != 0 || mv_x != 0) {
+			if ((maze_map.player_y + mv_y) >= 0 && (maze_map.player_y + mv_y) < maze_map.height && (maze_map.player_x + mv_x) >= 0 && (maze_map.player_x + mv_x) < maze_map.width) {
+				int dest = maze_map.map[maze_map.player_y + mv_y][maze_map.player_x + mv_x];
+
+				if (dest != 1 && dest != 2 && (dest != 3 || player_has_item(&maze_map, "KEY"))) {
+					maze_data_t data = get_maze_map_data(maze_map.id);
+
+					maze_map.player_y += mv_y;
+					maze_map.player_x += mv_x;
+
+					// Score
+					maze_map.player_score += 1;
+
+					if (dest == 3) {
+						maze_map.player_score -= 10;
+						player_remove_item(&maze_map, "KEY");
+
+						// FIN DE PARTIE
+						maze_map.player_x = maze_map.width - 2;
+						maze_map.player_y = maze_map.height - 1;
+						player_clear_item(&maze_map);
+						
+						for (int i=0; i < 10; i++) {
+							if (maze_map.player_score > data.ranking[i]) {
+								int a = maze_map.player_score,b;
+
+								for (int j=i; j < 10; j++) {
+									b = data.ranking[j];
+									data.ranking[j] = a;
+									a = b;
+								}
+
+								break;
+							}
+						}
+						
+						maze_map.player_score = 0;
+						
+						for (int i=0; i < maze_map.monster_count; i++) {
+							maze_map.monsters[i].x = maze_map.monsters[i].def_x;
+							maze_map.monsters[i].y = maze_map.monsters[i].def_y;
+						}
+						
+						for (int y=0; y < maze_map.height; y++) {
+							for (int x=0; x < maze_map.width; x++) {
+								if (maze_map.map[y][x] == 7) maze_map.map[y][x] = 4;
+								if (maze_map.map[y][x] == 8) maze_map.map[y][x] = 5;
+							}
+						}
+						
+						mode = 0;
+						menu_index = 0;
+						menu_index_count = 5;
+					} else if (dest == 4) {
+						maze_map.player_score += 5;
+						maze_map.map[maze_map.player_y][maze_map.player_x] = 7;
+					} else if (dest == 5) {
+						maze_map.player_score -= 5;
+						maze_map.map[maze_map.player_y][maze_map.player_x] = 8;
+					} else if (dest == 6 && !player_has_item(&maze_map, "KEY")) {
+						maze_map.player_score -= 10;
+						player_add_item(&maze_map, "KEY");
+					}
+					
+					// Save
+					save_maze(maze_map.id, maze_map.height, maze_map.width, data.name, maze_map.map, maze_map.difficulty, maze_map.monster_count, maze_map.monsters, maze_map.player_x, maze_map.player_y, maze_map.player_score, maze_map.player_inventory_count, maze_map.player_inventory, data.ranking);
+				}
 			}
-
-		if (key == 'q' && maze_map.player_x - 1 >= 0)
-			if (maze_map.map[maze_map.player_y][maze_map.player_x-1] != 1) {
-				maze_map.player_x--;
-				changed = 1;
-			}
-
-		if (key == 's' && maze_map.player_y + 1 < maze_map.height)
-			if (maze_map.map[maze_map.player_y+1][maze_map.player_x] != 1) {
-				maze_map.player_y++;
-				changed = 1;
-			}
-
-		if (key == 'd' && maze_map.player_x + 1 < maze_map.width)
-			if (maze_map.map[maze_map.player_y][maze_map.player_x+1] != 1) {
-				maze_map.player_x++;
-				changed = 1;
-			}
-
-		if (changed) {
-			maze_data_t d = get_maze_map_data(maze_map.id);
-			save_maze(maze_map.id, maze_map.height, maze_map.width, d.name, maze_map.map, maze_map.difficulty, maze_map.monster_count, maze_map.monsters, maze_map.player_x, maze_map.player_y, maze_map.player_score, maze_map.player_inventory_count, maze_map.player_inventory, d.ranking);
+		} else if (key == 0x1B) {
+			mode = 0;
+			menu_index = 0;
+			menu_index_count = 5;
 		}
 	}
 }
 
 void tick_game() {
+	if (mode == 3) {
+		if (tick_counter++ >= MAX_FPS * 2) {
+			tick_counter = 0;
 
+			srand ( time(NULL) );
+
+			for (int i=0; i < maze_map.monster_count; i++) {
+				int direction = rand()%4;
+				int off_x = direction == 1 ? 1 : (direction == 3 ? -1 : 0);
+				int off_y = direction == 2 ? 1 : (direction == 0 ? -1 : 0);
+				int off_rayon = maze_map.player_score / 5;
+
+				if (maze_map.monsters[i].type == 0) { // Ogre
+					int try = 0;
+					int rayon = 5 + off_rayon;
+					int dest = maze_map.map[maze_map.monsters[i].y+off_y][maze_map.monsters[i].x+off_x];
+					int dist = distance(maze_map.monsters[i].x+off_x, maze_map.monsters[i].y+off_y, maze_map.monsters[i].def_x, maze_map.monsters[i].def_y);
+					
+					while ( dest == 1 || dest == 2 || dest == 3 || (dist > rayon && try++ < 4) ) {
+						direction = ++direction%4;
+						off_x = direction == 1 ? 1 : (direction == 3 ? -1 : 0);
+						off_y = direction == 2 ? 1 : (direction == 0 ? -1 : 0);
+						dest = maze_map.map[maze_map.monsters[i].y+off_y][maze_map.monsters[i].x+off_x];
+					}
+					
+					maze_map.monsters[i].y += off_y;
+					maze_map.monsters[i].x += off_x;
+					
+					if (maze_map.monsters[i].y == maze_map.player_y && maze_map.monsters[i].x == maze_map.player_x) {
+						maze_map.player_score += 20;
+					}
+				}
+
+				if (maze_map.monsters[i].type == 0) { // Ghost
+					for (int j=0; j < 1+off_rayon; j++) {
+						if (maze_map.monsters[i].x + off_x <= 0 || maze_map.monsters[i].x + off_x >= maze_map.width  - 1) off_x *= -1;
+						if (maze_map.monsters[i].y + off_y <= 0 || maze_map.monsters[i].y + off_y >= maze_map.height - 1) off_y *= -1;
+						
+						maze_map.monsters[i].x += off_x;
+						maze_map.monsters[i].y += off_y;
+					
+						if (maze_map.monsters[i].y == maze_map.player_y && maze_map.monsters[i].x == maze_map.player_x) {
+							maze_map.player_score += 20;
+						}
+
+						direction = rand()%4;
+						off_x = direction == 1 ? 1 : (direction == 3 ? -1 : 0);
+						off_y = direction == 2 ? 1 : (direction == 0 ? -1 : 0);
+					}
+				}
+			}
+		}
+	}
 }
 
 char* menu_game(int h, int w) {
@@ -223,9 +339,13 @@ char* menu_game(int h, int w) {
 		a_pos = copy_string_pos("Nom :", menu, a_pos) + 1;
 		a_pos = copy_string_pos(input_name, menu, a_pos);
 		if (menu_index == 3) copy_string_pos("_", menu, a_pos);
+
+		if (gap > 0) {
+			copy_string_pos("[Entrer pour valider]", menu, w*h-26);
+		}
 	}
 
-	if (mode == 2) {
+	if (mode == 2) { //
 		int a_pos = copy_int_to_string_pos(menu_index + 1, menu, w*(gap) + 4);
 		a_pos = copy_string_pos("/", menu, a_pos);
 		a_pos = copy_int_to_string_pos(menu_index_count, menu, a_pos) + 4;
@@ -240,10 +360,38 @@ char* menu_game(int h, int w) {
 			asprintf(&str_b, "[id:%d] %s", mazes[f_show + i].id, mazes[f_show + i].name);
 			copy_string_pos(str_b, menu, a_pos + i*w);
 		}
+
+		if (gap > 0) {
+			copy_string_pos("[Entrer pour valider]", menu, w*h-26);
+		}
 	}
 
-	if (mode == 3) {
+	if (mode == 3) { // JOUER
 
+		if (gap > 0) {
+			copy_string_pos("[Echape pour quitter]", menu, w*h-26);
+		}
+	}
+
+	if (mode == 5) { // CLASSEMENT
+		int a_pos = copy_int_to_string_pos(menu_index + 1, menu, w*(gap) + 4);
+		a_pos = copy_string_pos("/", menu, a_pos);
+		a_pos = copy_int_to_string_pos(menu_index_count, menu, a_pos) + 4;
+
+		int show = max_element_line > menu_index_count ? menu_index_count : max_element_line;
+		int f_show = (menu_index > menu_index_count - show) ? menu_index_count - show : menu_index;
+
+		for (int i=0; i < show; i++) {
+			if (f_show + i == menu_index) copy_string_pos(">", menu, a_pos + i*w - 2);
+
+			char* str_b;
+			asprintf(&str_b, "%d) %d", f_show + i + 1, maze_data.ranking[f_show + i]);
+			copy_string_pos(str_b, menu, a_pos + i*w);
+		}
+
+		if (gap > 0) {
+			copy_string_pos("[Entrer pour quitter]", menu, w*h-26);
+		}
 	}
 
 	return menu;
@@ -274,19 +422,26 @@ char* map_game(int h, int w) {
 							c = '-';
 							break;
 						case 3:
-							c = 'o';
+							if (player_has_item(&maze_map, "KEY")) c = 'o';
+							else                                  c = '#';
 							break;
-						case 4:
+						case 7:
 							c = 'P';
 							break;
-						case 5:
+						case 8:
 							c = 'T';
 							break;
 						default:
 							break;
 					}
 
-					if (mode == 3 && maze_map.player_y == y+y_offset && maze_map.player_x == x+x_offset) c = 'P';
+					if (maze_map.player_y == y+y_offset && maze_map.player_x == x+x_offset) c = '@';
+					
+					for (int i=0; i < maze_map.monster_count; i++) {
+						if (maze_map.monsters[i].x == x+x_offset && maze_map.monsters[i].y == y+y_offset && maze_map.map[maze_map.monsters[i].y][maze_map.monsters[i].x] != 1) {
+							c = maze_map.monsters[i].type == 0 ? 'O' : 'F';
+						}
+					}
 
 					map[(gap+y)*w+gap+x] = c;
 				}

@@ -3,6 +3,7 @@
 #include <termios.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "loader.h"
 
@@ -76,4 +77,8 @@ int copy_int_to_string_pos(const int src, char* dest, int start_pos) {
 	free(src_str);
 
 	return j + start_pos;
+}
+
+int distance(int x1, int y1, int x2, int y2) {
+	return (int) ( sqrt( pow(x2 - x1, 2) + pow(y2 - y1, 2) ) );
 }

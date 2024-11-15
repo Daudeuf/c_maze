@@ -241,7 +241,7 @@ void save_maze(int id, int height, int width, char* name, int** maze_map, int di
 }
 
 void save_new_maze(int id, int height, int width, char* name, int** maze_map, int difficulty, int monster_count, maze_monster_t* monsters) {
-	char*  default_ranking = (int*)   calloc(10, sizeof(int));
+	int*  default_ranking = (int*) calloc(10, sizeof(int));
 
 	save_maze(id, height, width, name, maze_map, difficulty, monster_count, monsters, width - 2, height - 1, 0, 0, NULL, default_ranking);
 }
@@ -249,3 +249,66 @@ void save_new_maze(int id, int height, int width, char* name, int** maze_map, in
 /*void remove_maze(int id) {
 	printf("not yet implemented :)\n");
 }*/
+
+int player_has_item(maze_map_t* map, char* item) {
+	for (int i=0; i < map->player_inventory_count; i++) {
+		if (strcmp(item, map->player_inventory[i]) == 0) return 1;
+	}
+
+	return 0;
+}
+
+void player_add_item(maze_map_t* map, char* item) {
+	map->player_inventory_count++;
+
+	char** inv = (char**) malloc(map->player_inventory_count * sizeof(char*));
+
+	for (int i=0; i < map->player_inventory_count; i++) {
+		inv[i] = (char*) malloc(0);
+
+		if (i == 0) {
+			asprintf(&inv[0], "%s", item);
+		} else {
+			asprintf(&inv[i], "%s", map->player_inventory[i - 1]);
+			free(map->player_inventory[i - 1]);
+		}
+	}
+	
+	free(map->player_inventory);
+	
+	map->player_inventory = inv;
+}
+
+int player_remove_item(maze_map_t* map, char* item) {
+	char** inv = (char**) malloc(map->player_inventory_count * sizeof(char*));
+	int deleted = 0;
+
+	for (int i=0; i < map->player_inventory_count; i++) {
+		if (strcmp(item, map->player_inventory[i]) == 0 && !deleted) {
+			deleted++;
+		} else {
+			inv[i-deleted] = (char*) malloc(0);
+			asprintf(&inv[i-deleted], "%s", map->player_inventory[i]);
+		}
+
+		free(map->player_inventory[i]);
+	}
+	
+	free(map->player_inventory);
+	
+	map->player_inventory = inv;
+	map->player_inventory_count -= deleted;
+
+	return deleted;
+}
+
+void player_clear_item(maze_map_t* map) {
+	for (int i=0; i < map->player_inventory_count; i++) {
+		free(map->player_inventory[i]);
+	}
+	
+	free(map->player_inventory);
+	
+	map->player_inventory_count = 0;
+	map->player_inventory = (char**) malloc(0);
+}

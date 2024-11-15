@@ -34,6 +34,44 @@ vector_t* generate_shuffled_vectors(int width, int height) {
 	return lst;
 }
 
+vector_t* generate_empty_shuffled_vectors(int** grid, int width, int height) {
+	int nb = 0;
+
+	srand ( time(NULL) );
+
+	for (int y=0; y < height; y++) {
+		for (int x=0; x < width; x++) {
+			if (grid[y][x] == 0) {
+				nb++;
+			}
+		}
+	}
+
+	vector_t * lst = (vector_t *) malloc(nb*sizeof(vector_t));
+
+	int i = 0;
+	for (int y=0; y < height; y++) {
+		for (int x=0; x < width; x++) {
+			if (grid[y][x] == 0) {
+				vector_t v = { x, y };
+
+				lst[i++] = v;
+			}
+		}
+	}
+
+	for (int i = nb-1; i > 0; i--)
+	{
+		int j = rand() % (i+1);
+
+		vector_t temp = lst[i];
+		lst[i] = lst[j];
+		lst[j] = temp;
+	}
+
+	return lst;
+}
+
 void change_side_value(int** grid, int x, int y, int val) {
 	// 166s (1024x1024)
 	/*for (int i = 0; i < 4; i++) {
@@ -60,6 +98,9 @@ void change_side_value(int** grid, int x, int y, int val) {
 3: sortie
 4: piège
 5: trésor
+6: clé
+7: piège activé
+8: trésor découvert
 */
 
 int** generate_grid(int height, int width) {
@@ -128,4 +169,48 @@ int** generate_grid(int height, int width) {
 	//delta(start, 4);
 
 	return grid;
+}
+
+maze_monster_t* generate_items_and_monsters(int** grid, int height, int width, int difficulty, int* monster_count) {
+	int item_count = (height + width) + 1;
+	*monster_count = (item_count - 1) / 4 * (difficulty == 0 ? 0 : 1);
+
+	int ghost = (*monster_count) == 0 ? 0 : (rand()%(*monster_count));
+	int ogre = (*monster_count) - ghost;
+
+	maze_monster_t* monsters = (maze_monster_t*) malloc(*monster_count * sizeof(maze_monster_t));
+	vector_t * lst = generate_empty_shuffled_vectors(grid, width, height);
+
+	for (int i=0; i < item_count; i++) {
+		grid[lst[i].y][lst[i].x] = (i == 0 ? 6 : (i <= (item_count - 1) / 2 ? 4 : 5));
+
+		if (grid[lst[i].y][lst[i].x] == 5 && ogre > 0) {
+			maze_monster_t monster = {.type=0,.x=lst[i].x,.def_x=lst[i].x,.y=lst[i].y,.def_y=lst[i].y};
+
+			monsters[(*monster_count) - ghost - ogre--] = monster;
+		}
+	}
+	
+	free(lst);
+	
+	for (int i=0; i < ghost; i++) {
+		int x = 1 + rand()%(width - 2);
+		int y = 1 + rand()%(height - 2);
+
+		maze_monster_t monster = {.type=1,.x=x,.def_x=x,.y=y,.def_y=y};
+
+		monsters[(*monster_count) - ghost + i] = monster;
+	}
+
+	return monsters;
+}
+
+void break_walls(int** grid, int height, int width) {
+	vector_t * lst = generate_shuffled_vectors(width, height);
+	
+	for (int i = (height - 2) * (width - 2) / 8; i >= 0; i--) {
+		grid[lst[i].y][lst[i].x] = 0;
+	}
+	
+	free(lst);
 }

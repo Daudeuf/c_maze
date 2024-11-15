@@ -8,5 +8,6 @@ void free_grid(int** grid, int height);
 void free_maze_map(maze_map_t map);
 int copy_string_pos(const char* src, char* dest, int start_pos);
 int copy_int_to_string_pos(const int src, char* dest, int start_pos);
+int distance(int x1, int y1, int x2, int y2);
 
 #endif
