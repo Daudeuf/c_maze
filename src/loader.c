@@ -53,7 +53,6 @@ maze_data_t* get_maze_list() {
 			char line[256];
 			int x, y, s;
 			int inv_count, monster_count;
-			int ranking[10];
 
 			fgets(line, sizeof(line), file);
 			sscanf(line, "%d", &lst[i].id);
@@ -62,12 +61,37 @@ maze_data_t* get_maze_list() {
 			fgets(line, sizeof(line), file);
 			sscanf(line, "%d %d %d %d %d", &x, &y, &s, &inv_count, &monster_count);
 			for (int i=0; i < (inv_count + monster_count + 1); i++) fgets(line, sizeof(line), file);
-			sscanf(line, "%d %d %d %d %d %d %d %d %d %d", &ranking[0], &ranking[1], &ranking[2], &ranking[3], &ranking[4], &ranking[5], &ranking[6], &ranking[7], &ranking[8], &ranking[9]);
+			sscanf(line, "%d %d %d %d %d %d %d %d %d %d", &lst[i].ranking[0], &lst[i].ranking[1], &lst[i].ranking[2], &lst[i].ranking[3], &lst[i].ranking[4], &lst[i].ranking[5], &lst[i].ranking[6], &lst[i].ranking[7], &lst[i].ranking[8], &lst[i].ranking[9]);
 			fclose(file);
 		}
 	}
 
 	return lst;
+}
+
+maze_data_t get_maze_map_data(int id) {
+	maze_data_t data = {.id=id};
+	char filename[32];
+
+	sprintf(filename, "./mazes/maze-map-%d.cfg", id);
+	FILE* file = fopen(filename, "r");
+
+	if (file != NULL) {
+		char line[256];
+		int x, y, s;
+		int inv_count, monster_count;
+
+		fgets(line, sizeof(line), file);
+		fgets(data.name, sizeof(data.name), file);
+		data.name[strlen(data.name) - 1] = '\0';
+		fgets(line, sizeof(line), file);
+		sscanf(line, "%d %d %d %d %d", &x, &y, &s, &inv_count, &monster_count);
+		for (int i=0; i < (inv_count + monster_count + 1); i++) fgets(line, sizeof(line), file);
+		sscanf(line, "%d %d %d %d %d %d %d %d %d %d", &data.ranking[0], &data.ranking[1], &data.ranking[2], &data.ranking[3], &data.ranking[4], &data.ranking[5], &data.ranking[6], &data.ranking[7], &data.ranking[8], &data.ranking[9]);
+		fclose(file);
+	}
+
+	return data;
 }
 
 maze_map_t get_maze_map(int id) {

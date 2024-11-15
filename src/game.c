@@ -29,11 +29,6 @@ maze_data_t* mazes;
 int map_loaded;
 maze_map_t maze_map;
 
-// player
-int player_x, player_y;
-int player_score;
-int player_key_finded;
-
 
 void init_game() {
 	map_loaded = 0;
@@ -83,11 +78,6 @@ void handle_key_game(char key) {
 				} else if (menu_index == 2) { // jouer
 					if (map_loaded) {
 						mode = 3;
-
-						player_x = 0;
-						player_y = 0;
-						player_score = 0;
-						player_key_finded = 0;
 					}
 				} else if (menu_index == 3) { // classement
 
@@ -153,6 +143,37 @@ void handle_key_game(char key) {
 
 			if (menu_index == 2 && key == 'd') input_difficulty = 1;
 			if (menu_index == 2 && key == 'f') input_difficulty = 0;
+		}
+	} else if (mode == 3) {
+		int changed = 0;
+
+		if (key == 'z' && maze_map.player_y - 1 >= 0)
+			if (maze_map.map[maze_map.player_y-1][maze_map.player_x] != 1) {
+				maze_map.player_y--;
+				changed = 1;
+			}
+
+		if (key == 'q' && maze_map.player_x - 1 >= 0)
+			if (maze_map.map[maze_map.player_y][maze_map.player_x-1] != 1) {
+				maze_map.player_x--;
+				changed = 1;
+			}
+
+		if (key == 's' && maze_map.player_y + 1 < maze_map.height)
+			if (maze_map.map[maze_map.player_y+1][maze_map.player_x] != 1) {
+				maze_map.player_y++;
+				changed = 1;
+			}
+
+		if (key == 'd' && maze_map.player_x + 1 < maze_map.width)
+			if (maze_map.map[maze_map.player_y][maze_map.player_x+1] != 1) {
+				maze_map.player_x++;
+				changed = 1;
+			}
+
+		if (changed) {
+			maze_data_t d = get_maze_map_data(maze_map.id);
+			save_maze(maze_map.id, maze_map.height, maze_map.width, d.name, maze_map.map, maze_map.difficulty, maze_map.monster_count, maze_map.monsters, maze_map.player_x, maze_map.player_y, maze_map.player_score, maze_map.player_inventory_count, maze_map.player_inventory, d.ranking);
 		}
 	}
 }
@@ -221,5 +242,57 @@ char* menu_game(int h, int w) {
 		}
 	}
 
+	if (mode == 3) {
+
+	}
+
 	return menu;
+}
+
+char* map_game(int h, int w) {
+	char* map = (char*) malloc(h*w * sizeof(char));
+
+	int gap = (h > 10 && w > 10) ? 2 : ((h > 8 && w > 8) ? 1 : 0);
+	int act_h = h - 2*gap, act_w = w - 2*gap;
+
+	for (int i=0; i < h*w; i++) map[i] = ' ';
+
+	if (map_loaded) {
+		int y_offset = maze_map.player_y - (act_h/2);
+		int x_offset = maze_map.player_x - (act_w/2);
+
+		for (int y=0; y < act_h; y++) {
+			for (int x=0; x < act_w; x++) {
+				if (y+y_offset < maze_map.height && x+x_offset < maze_map.width && y+y_offset >= 0 && x+x_offset >= 0) {
+					char c = ' ';
+
+					switch (maze_map.map[y+y_offset][x+x_offset]) {
+						case 1:
+							c = '#';
+							break;
+						case 2:
+							c = '-';
+							break;
+						case 3:
+							c = 'o';
+							break;
+						case 4:
+							c = 'P';
+							break;
+						case 5:
+							c = 'T';
+							break;
+						default:
+							break;
+					}
+
+					if (mode == 3 && maze_map.player_y == y+y_offset && maze_map.player_x == x+x_offset) c = 'P';
+
+					map[(gap+y)*w+gap+x] = c;
+				}
+			}
+		}
+	}
+
+	return map;
 }

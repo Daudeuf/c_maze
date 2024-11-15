@@ -52,7 +52,7 @@ Menu = Classement [5]
 int terminal_width, terminal_height;
 int width, menu_height, screen_height;
 
-int** c_screen; // screen actuel
+char* c_screen; // screen actuel
 char* c_menu;   // menu actuel
 
 void reset_render() {
@@ -88,8 +88,11 @@ void interface_render() {
 
 	reset_render(); // reset screen si taille change
 
-	c_menu = menu_game(menu_height, width);
+	c_menu   = menu_game(menu_height, width);
+	c_screen = map_game(screen_height, width);
 
+	printf("\033[H");
+	printf("%s", c_screen);
 	printf("\033[%d;%dH", screen_height + 1, 1);
 	printf("%s", c_menu);
 	printf("\033[H");
@@ -97,9 +100,25 @@ void interface_render() {
 }
 
 void intermediate_interface_render() {
-	char* menu = menu_game(menu_height, width);
+	char* screen = map_game(screen_height, width);
+	char* menu   = menu_game(menu_height, width);
 	int has_change = 0;
 	char* str = "";
+
+	for (int i=0; i < screen_height*width; i++) {
+		if (c_screen[i] != screen[i]) {
+			if (!has_change) {
+				asprintf(&str, "%s\033[%d;%dH%c", str, 1 + i/width, 1 + i%width, screen[i]);
+				has_change = 1;
+			} else {
+				asprintf(&str, "%s%c", str, screen[i]);
+			}
+
+			c_screen[i] = screen[i];
+		} else has_change = 0;
+	}
+
+	has_change = 0;
 
 	for (int i=0; i < menu_height*width; i++) {
 		if (c_menu[i] != menu[i]) {
@@ -114,6 +133,7 @@ void intermediate_interface_render() {
 		} else has_change = 0;
 	}
 
+	free(screen);
 	free(menu);
 
 	if (strlen(str) != 0) {

@@ -35,6 +35,7 @@ typedef struct {
 
 int          get_maze_count();
 maze_data_t* get_maze_list();
+maze_data_t  get_maze_map_data(int id);
 maze_map_t   get_maze_map(int id);
 int          get_free_id();
 void         save_new_maze(int id, int height, int width, char* name, int** maze_map, int difficulty, int monster_count, maze_monster_t* monsters);
