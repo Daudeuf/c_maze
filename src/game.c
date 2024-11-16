@@ -321,6 +321,10 @@ char* menu_game(int h, int w) {
 
 			if (menu_index == i) menu[a_pos - 2] = '>';
 		}
+
+		if (gap > 0) {
+			copy_string_pos("[Entrer : valider | Z/Q : monter | S/D : descendre ]", menu, w*h-56);
+		}
 	}
 
 	if (mode == 1) {
@@ -362,14 +366,27 @@ char* menu_game(int h, int w) {
 		}
 
 		if (gap > 0) {
-			copy_string_pos("[Entrer pour valider]", menu, w*h-26);
+			copy_string_pos("[Entrer : valider | Z/Q : monter | S/D : descendre ]", menu, w*h-56);
 		}
 	}
 
 	if (mode == 3) { // JOUER
 
+		int a_pos = copy_string_pos("Score : ", menu, gap*(w+1));
+		a_pos = copy_int_to_string_pos(maze_map.player_score, menu, a_pos) + 4;
+
+		a_pos = copy_string_pos("Inventaire : ", menu, a_pos);
+
+		for (int i=0; i < maze_map.player_inventory_count; i++) {
+			a_pos = copy_string_pos(maze_map.player_inventory[i], menu, a_pos);
+			if (i+1 < maze_map.player_inventory_count) a_pos = copy_string_pos(",", menu, a_pos);
+			a_pos++;
+		}
+
+		if (maze_map.player_inventory_count == 0) copy_string_pos("Vide", menu, a_pos);
+
 		if (gap > 0) {
-			copy_string_pos("[Echape pour quitter]", menu, w*h-26);
+			copy_string_pos("[Echape : quitter | Z : monte | S : descendrer | Q : gauche | D : droite ]", menu, w*h-78);
 		}
 	}
 
@@ -390,7 +407,7 @@ char* menu_game(int h, int w) {
 		}
 
 		if (gap > 0) {
-			copy_string_pos("[Entrer pour quitter]", menu, w*h-26);
+			copy_string_pos("[Entrer : retour | Z/Q : monter | S/D : descendre ]", menu, w*h-55);
 		}
 	}
 
@@ -447,6 +464,8 @@ char* map_game(int h, int w) {
 				}
 			}
 		}
+	} else {
+		// A FAIRE
 	}
 
 	return map;
