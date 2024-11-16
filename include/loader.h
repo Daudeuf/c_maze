@@ -40,7 +40,6 @@ maze_map_t   get_maze_map(int id);
 int          get_free_id();
 void         save_new_maze(int id, int height, int width, char* name, int** maze_map, int difficulty, int monster_count, maze_monster_t* monsters);
 void         save_maze(int id, int height, int width, char* name, int** maze_map, int difficulty, int monster_count, maze_monster_t* monsters, int player_x, int player_y, int player_score, int player_inventory_count, char** player_inventory, int* ranking);
-//void         remove_maze(int id);
 int          player_has_item(maze_map_t* map, char* item);
 void         player_add_item(maze_map_t* map, char* item);
 int          player_remove_item(maze_map_t* map, char* item);

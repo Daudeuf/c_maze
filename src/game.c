@@ -55,7 +55,7 @@ void handle_key_game(char key) {
 		}
 		if (key == '\n' || key == ' ') {
 			if (mode == 0) {
-				if (menu_index == 0) { // créer
+				if (menu_index == 0) { // "créer"
 					mode = 1;
 
 					// menu_index -> 0:width, 1:height, 2:difficulty, 3:name
@@ -80,19 +80,19 @@ void handle_key_game(char key) {
 					} else {
 						menu_index_count = 5;
 					}
-				} else if (menu_index == 2) { // jouer
+				} else if (menu_index == 2) { // "jouer"
 					if (map_loaded) {
 						mode = 3;
 						tick_counter = 0;
 					}
-				} else if (menu_index == 3) { // classement
+				} else if (menu_index == 3) { // "classement"
 					if (map_loaded) {
 						mode = 5;
 						menu_index = 0;
 						menu_index_count = 10;
 						maze_data = get_maze_map_data(maze_map.id);
 					}
-				} else if (menu_index == 4) tick_quit(); // quitter
+				} else if (menu_index == 4) tick_quit(); // "quitter"
 			} else if (mode == 2) {
 				if (map_loaded) free_maze_map(maze_map);
 
@@ -183,7 +183,7 @@ void handle_key_game(char key) {
 						maze_map.player_score -= 10;
 						player_remove_item(&maze_map, "KEY");
 
-						// FIN DE PARTIE
+						// END OF THE GAME
 						maze_map.player_x = maze_map.width - 2;
 						maze_map.player_y = maze_map.height - 1;
 						player_clear_item(&maze_map);
@@ -230,7 +230,7 @@ void handle_key_game(char key) {
 						player_add_item(&maze_map, "KEY");
 					}
 					
-					// Save
+					// Save the maze
 					save_maze(maze_map.id, maze_map.height, maze_map.width, data.name, maze_map.map, maze_map.difficulty, maze_map.monster_count, maze_map.monsters, maze_map.player_x, maze_map.player_y, maze_map.player_score, maze_map.player_inventory_count, maze_map.player_inventory, data.ranking);
 				}
 			}
@@ -244,7 +244,7 @@ void handle_key_game(char key) {
 
 void tick_game() {
 	if (mode == 3) {
-		if (tick_counter++ >= MAX_FPS * 2) {
+		if (tick_counter++ >= MAX_TPS * 2) {
 			tick_counter = 0;
 
 			srand ( time(NULL) );
@@ -349,7 +349,7 @@ char* menu_game(int h, int w) {
 		}
 	}
 
-	if (mode == 2) { //
+	if (mode == 2) {
 		int a_pos = copy_int_to_string_pos(menu_index + 1, menu, w*(gap) + 4);
 		a_pos = copy_string_pos("/", menu, a_pos);
 		a_pos = copy_int_to_string_pos(menu_index_count, menu, a_pos) + 4;
@@ -465,7 +465,7 @@ char* map_game(int h, int w) {
 			}
 		}
 	} else {
-		// A FAIRE
+		// if no maze loaded
 	}
 
 	return map;

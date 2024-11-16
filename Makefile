@@ -10,7 +10,7 @@ EXEC = mini_projet
 
 CC = gcc
 CPPFLAGS = -I$(INCDIR)
-CFLAGS = -Wall -Wextra -ansi -pedantic -std=gnu99
+CFLAGS = -Wall -Wextra -pedantic -std=gnu99
 LDFLAGS = -Llib -lm
 
 # List source and object files

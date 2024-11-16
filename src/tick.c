@@ -21,7 +21,7 @@ void* input_thread_func(void* arg) {
 	struct termios oldt, newt;
 	tcgetattr(STDIN_FILENO, &oldt);
 	newt = oldt;
-	newt.c_lflag &= ~(ICANON | ECHO | ISIG); //  | ISIG -> interdire les signaux (exemple : CTRL + C)
+	newt.c_lflag &= ~(ICANON | ECHO | ISIG); //  | ISIG -> disable signal (exemple : CTRL + C)
 	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 	fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
 
@@ -64,10 +64,10 @@ int tick_start() {
 	}
 
 
-	// init
+	// Init render and game
 	init_game();
 	init_render();
-	//end
+	// end
 
 
 	while (running) {
@@ -75,7 +75,7 @@ int tick_start() {
 
 		pthread_mutex_lock(&input_mutex);
 
-		// copy input buffer & clear input buffer
+		// Copy input buffer & clear input buffer
 		int input_count = char_count;
 		char* input_lst = (char*) malloc(input_count * sizeof(char));
 		for (int i=0; i < input_count; i++) input_lst[i] = char_lst[i];
@@ -89,29 +89,29 @@ int tick_start() {
 
 
 
-		// traitement touches
+		// keys process
 		if (input_count > 0) {
 			for (int i=0; i < input_count; i++) {
-				/*if (input_lst[i] == 'c') tick_quit(); else */handle_key_game(input_lst[i]);
+				handle_key_game(input_lst[i]);
 			}
 		}
 		// end
 
 		if (running) {
 
-			// game tick
+			// Game tick
 			tick_game();
 			// end
 
 
 
-			// tick graphique
+			// Render tick
 			tick_render();
 			// end
 
 
-			// assure que le jeu tourne à 60 tps (tick par seconde)
-			long temp = (1000000 - (clock() - start) / CLOCKS_PER_SEC * 1000000) / MAX_FPS;
+			// Make game run at 60 TPS
+			long temp = (1000000 - (clock() - start) / CLOCKS_PER_SEC * 1000000) / MAX_TPS;
 			usleep(temp > 1000 ? temp : 1000);
 		}
 	}

@@ -73,18 +73,6 @@ vector_t* generate_empty_shuffled_vectors(int** grid, int width, int height) {
 }
 
 void change_side_value(int** grid, int x, int y, int val) {
-	// 166s (1024x1024)
-	/*for (int i = 0; i < 4; i++) {
-		int a = y + (i%2 == 0 ? (i == 0 ? 1 : -1) : 0), b = x + (i%2 != 0 ? (i == 1 ? 1 : -1) : 0);
-
-		if (grid[a][b] == val) {
-			grid[a][b] = grid[y][x];
-
-			change_side_value(grid, b, a, val);
-		}
-	}*/
-
-	// 88s
 	if (grid[y + 1][x] == val) { grid[y + 1][x] = grid[y][x]; change_side_value(grid, x, y + 1, val); }
 	if (grid[y - 1][x] == val) { grid[y - 1][x] = grid[y][x]; change_side_value(grid, x, y - 1, val); }
 	if (grid[y][x + 1] == val) { grid[y][x + 1] = grid[y][x]; change_side_value(grid, x + 1, y, val); }
@@ -92,22 +80,18 @@ void change_side_value(int** grid, int x, int y, int val) {
 }
 
 /*
-0: chemin
-1: mur
-2: entrée
-3: sortie
-4: piège
-5: trésor
-6: clé
-7: piège activé
-8: trésor découvert
+0: path
+1: wall
+2: entrance
+3: exit
+4: trap
+5: teasure
+6: key
+7: trigger trap
+8: discovered teasure
 */
 
 int** generate_grid(int height, int width) {
-	/*
-	 * 512x512 : 10s
-	 * 1024x1024 : 2m 20s
-	 */
 	clock_t start = clock();
 
 	if (height%2==0) height--;
@@ -124,13 +108,7 @@ int** generate_grid(int height, int width) {
 		}
 	}
 
-	//delta(start, 1);
-
 	vector_t * lst = generate_shuffled_vectors(width, height);
-
-	//delta(start, 2);
-
-	//int cpt_it = 0;
 
 	for (int i = ((height - 2) * (width - 2) / 2) - 1; i >= 0; i--) {
 		int x = lst[i].x, y = lst[i].y;
@@ -146,27 +124,19 @@ int** generate_grid(int height, int width) {
 			grid[y][x] = val_a;
 
 			change_side_value(grid, x, y, val_b);
-			//cpt_it ++;
 
 		} else grid[y][x] = 1;
 	}
 
-	//printf("changement : %d murs : %d\n", cpt_it, (height - 2) * (width - 2) / 2);
+	free(lst);
 
-	//delta(start, 3);
-
-	free(lst); // libération de la mémoire prise par la liste de vecteur
-
-	// Mettre le chemin à 0
+	// set path to 0
 	int val = grid[1][1];
 	grid[1][1] = 0;
 	change_side_value(grid, 1, 1, val);
 
-	grid[0][1] = 3; // sortie
-	grid[height - 1][width - 2] = 2; // entrée
-
-
-	//delta(start, 4);
+	grid[0][1] = 3; // exit
+	grid[height - 1][width - 2] = 2; // entrance
 
 	return grid;
 }

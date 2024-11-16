@@ -14,7 +14,7 @@ void get_terminal_dimension(int* width, int* height) {
 		*width = w.ws_col;
 		*height = w.ws_row;
 	} else {
-		*width = 80; // si echec alors valeurs par défaut
+		*width = 80; // default value
 		*height = 25;
 	}
 }

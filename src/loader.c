@@ -109,9 +109,9 @@ maze_map_t get_maze_map(int id) {
 
 		fgets(line, sizeof(line), file);
 		sscanf(line, "%d %d", &maze_map.id, &maze_map.difficulty);
-		fgets(line, sizeof(line), file);// skip nom
+		fgets(line, sizeof(line), file);
 
-		fgets(line, sizeof(line), file);// ligne data int
+		fgets(line, sizeof(line), file);
 		sscanf(line, "%d %d %d %d %d", &maze_map.player_x, &maze_map.player_y, &maze_map.player_score, &maze_map.player_inventory_count, &maze_map.monster_count);
 
 		maze_map.player_inventory = (char**) malloc(maze_map.player_inventory_count * sizeof(char*));
@@ -132,8 +132,8 @@ maze_map_t get_maze_map(int id) {
 			maze_map.monsters[i] = monster;
 		}
 
-		fgets(line, sizeof(line), file);// skip classement
-		fgets(line, sizeof(line), file);// skip ligne vide avant grille
+		fgets(line, sizeof(line), file);
+		fgets(line, sizeof(line), file);
 
 		long maze_map_pos = ftell(file);
 		int temp_width = 0;
@@ -207,7 +207,7 @@ void save_maze(int id, int height, int width, char* name, int** maze_map, int di
 	FILE* file = fopen(filename, "w");
 
 	if (file != NULL) {
-		fprintf(file, "%d %d\n%s\n%d %d %d %d %d\n"/* "\n%s\n%s\n%s\n\n" */, id, difficulty, name, player_x, player_y, player_score, player_inventory_count, monster_count);
+		fprintf(file, "%d %d\n%s\n%d %d %d %d %d\n", id, difficulty, name, player_x, player_y, player_score, player_inventory_count, monster_count);
 
 		for (int i=0; i < player_inventory_count; i++) {
 			fprintf(file, "%s\n", player_inventory[i]);
@@ -223,7 +223,7 @@ void save_maze(int id, int height, int width, char* name, int** maze_map, int di
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				if (char_count + 3 > 254) { // 256 - 3 ('E' '\n' '\0')
+				if (char_count + 3 > 254) {
 					fprintf(file, "\n%02d ", maze_map[y][x]);
 					char_count = 3;
 				} else {
@@ -245,10 +245,6 @@ void save_new_maze(int id, int height, int width, char* name, int** maze_map, in
 
 	save_maze(id, height, width, name, maze_map, difficulty, monster_count, monsters, width - 2, height - 1, 0, 0, NULL, default_ranking);
 }
-
-/*void remove_maze(int id) {
-	printf("not yet implemented :)\n");
-}*/
 
 int player_has_item(maze_map_t* map, char* item) {
 	for (int i=0; i < map->player_inventory_count; i++) {

@@ -18,45 +18,45 @@
 |                                                              |
 |                                                              |
 +--------------------------------------------------------------+
-|                        Menu (& choix)                        |
+|                        Menu (& choice)                       |
 |                                                              |
 +--------------------------------------------------------------+
 
-Phases :
+Parts :
 - Initial :
-SCREEN = "LABYRINTHE" ou lab chargé
-Menu = menu classique (choix) [0]
+SCREEN = loaded maze
+Menu = default menu (choice) [0]
 
-- Création
-SCREEN = labyrinthe créer (vue map)
-Menu = menu classique (input) [1]
+- Creation
+SCREEN = created maze (map view)
+Menu = creation menu [1]
 
-- Charger
-SCREEN = labyrinthe créer (vue map lab sélectionné)
-Menu = menu classique (liste des labyrinthes) [2]
+- Loaded
+SCREEN = created maze (map view)
+Menu = all mazes [2]
 
-- Jouer (classique)
-SCREEN = labyrinthe en cour (vue map & perso)
-Menu = Liste des touches & info partie [3]
+- Play (classic)
+SCREEN = current maze (map view playable)
+Menu = datas about game [3]
 
-- Jouer (pas classique)
-SCREEN = labyrinthe en cour (vue map 2d amélioré)
-Menu = Liste des touches & info partie & inventaire [4]
+- Play (advanced)
+SCREEN = current maze (upgraded map view playable)
+Menu = datas about game [4]
 
-- Classement
-SCREEN = labyrinthe chargé (vue map lab sélectionné)
-Menu = Classement [5]
+- Ranking
+SCREEN = loaded maze (map view)
+Menu = Ranking [5]
 
 */
 
 int terminal_width, terminal_height;
 int width, menu_height, screen_height;
 
-char* c_screen; // screen actuel
-char* c_menu;   // menu actuel
+char* c_screen; // current screen
+char* c_menu;   // current menu
 
 void reset_render() {
-	// sequence ansi pour se mettre à la position 1;1 et clear le termianl après
+	// ANSI sequence to put cursor at position 1;1 and clear screen
 	printf("\033[H\033[J");
 	fflush(stdout);
 }
@@ -86,7 +86,7 @@ void interface_render() {
 	menu_height   = terminal_height * 0.20;   if (menu_height < 1) menu_height = 1;
 	screen_height = terminal_height - menu_height;
 
-	reset_render(); // reset screen si taille change
+	reset_render(); // reset screen if size change
 
 	c_menu   = menu_game(menu_height, width);
 	c_screen = map_game(screen_height, width);
