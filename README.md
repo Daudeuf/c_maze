@@ -1,26 +1,29 @@
-# Labyrinth
+# Maze Project in C
 
-***Ce TP appartient et a été entièrement réalisé par Clément DAUBEUF***
+***This File belongs to and was entirely produced by Clément DAUBEUF***
 
-## Projet
+## Introduction
 
-1) Menu :
-* creation d'une grille (enregistrement dans .cfg et chargement auto)
-* chargement d'une grille (charge une grille parmis une liste des grilles dispo et retourne le menu en activant le btn **jouer**)
-* jouer (place le joueur à l'entrée du labyrinthe chargé au préalable et le laisse se balader dedans jusqu'à la sortie)
+This project focus on making a playable maze game with generation algorithms, monsters and player ranking.
 
-* Objets :
-  - clé (pour pouvoir sortir)
-  - trésors (gagner des points supplémentaires)
-  - pièges (retirant des points)
-  - points = vie ?
-* Score : nb déplacement + bonus/malus + sortie
-* top 10 des parties (dans fichier nom.score)
-* ajout au menu : btn score
+## Documentations
 
-* ajout de parcours supplémentaires (suppression random de murs)
-* monstres (déplacement joueur = déplacement monstre + autres paramètres )
+- See **USER_DOC.md** for the user documentation.
+- See **DEV_DOC.md** for the developpement documentation.
 
-## Manuel joueur
+## Installation and Use
 
-##Manuel développeur
+1. Make sure to have GCC (like all linux OS)
+2. Run the following command
+```bash
+make run
+```
+
+## All others commands
+
+* ``make`` to compile the source code
+* ``make run`` to compile the source code and run the program
+* ``make tests`` to compile the tests and the source code beforehand
+* ``make run-tests`` to compile the tests and the source code beforehand and then run the tests
+* ``make clean`` to clean the intermediate files generated during compilation
+* ``make distclean`` to clean the files and folders generated during compilation
